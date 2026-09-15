@@ -52,6 +52,12 @@ jobs:
         run: |
           git clone --depth 1 --branch $REPO_BRANCH $REPO_URL openwrt
 
+      - name: 拉取 Argon 主题（第三方）
+        run: |
+          cd openwrt
+          git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon package/luci-theme-argon
+          git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
+
       - name: 更新并安装 feeds
         run: |
           cd openwrt
@@ -97,7 +103,7 @@ jobs:
           cp -f * $GITHUB_WORKSPACE/output/ 2>/dev/null || true
           cd $GITHUB_WORKSPACE
           VERSION=$(grep '^CONFIG_VERSION_NUMBER' openwrt/.config | cut -d'"' -f2 || echo "snapshot")
-          echo "FANCHMWRT_VERSION=$VERSION-$(date +%Y%m%d)" >> $GITHUB_ENV
+          echo "FANCHMWRT_VERSION=${VERSION}-$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
 
       - name: 上传 Artifacts
         uses: actions/upload-artifact@v4
@@ -106,14 +112,20 @@ jobs:
           path: output/
           retention-days: 30
 
-      - name: 发布到 Release（tag 推送时）
+      - name: 发布到 Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
+        if: steps.compile.outputs.status == 'success'
         with:
-          files: output/*
+          tag_name: v${{ env.FANCHMWRT_VERSION }}
+          name: FanchmWrt ${{ env.FANCHMWRT_VERSION }}
+          make_latest: true
+          files: output/*.bin
           body: |
-            FanchmWrt ${{ env.FANCHMWRT_VERSION }}
-            设备：京东云无线宝一代（亚瑟 RE-SP-01B，MT7621）
-            ⚠️ 刷机需第三方 bootloader（breed），详见 README
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            FanchmWrt ${{ env.FANCHMWRT_VERSION }} · 京东云无线宝一代（亚瑟 RE-SP-01B，MT7621）
+
+            | 文件 | 用途 |
+            |---|---|
+            | `*-squashfs-sysupgrade.bin` | 正式固件（breed / OpenWrt 内升级用） |
+            | `*-initramfs-kernel.bin` | 临时启动测试（不写 flash，重启即失） |
+
+            ⚠️ 官方 bootloader 不认第三方固件，刷机需先烧 breed 不死引导，详见 README。

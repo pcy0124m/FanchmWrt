@@ -47,8 +47,14 @@ CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_kmod-mt7603=y
 CONFIG_PACKAGE_kmod-mt7615-firmware=y
 
-# 品牌信息
-CONFIG_VERSION_DIST="FanchmWrt"
+# 品牌信息（必须先开 CONFIG_VERSIONOPT，否则下面全部不生效）
+CONFIG_VERSIONOPT=y
+CONFIG_VERSION_DIST="fanchmwrt"
 CONFIG_VERSION_NICK="fanchm"
 CONFIG_VERSION_PRODUCT="FanchmWrt RE-SP-01B"
 CONFIG_VERSION_REPO="https://downloads.openwrt.org/releases/25.12.2"
+CONFIG_VERSION_BUG_URL="https://github.com/pcy0124m/FanchmWrt/issues"
+
+# 主题：Argon（由 workflow 从 jerrykuku 仓库拉取）及其配置页
+CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-app-argon-config=y

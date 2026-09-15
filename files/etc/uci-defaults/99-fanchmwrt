@@ -19,4 +19,16 @@ uci commit system
 }
 uci commit wireless
 
+# 管理 IP
+uci set network.lan.ipaddr='192.168.12.1'
+uci set network.lan.netmask='255.255.255.0'
+uci commit network
+
+# root 空密码（刷机后直接登录，请自行设置密码）
+passwd -d root
+
+# 默认主题 Argon
+uci set luci.main.mediaurlbase='/luci-static/argon'
+uci commit luci
+
 exit 0
