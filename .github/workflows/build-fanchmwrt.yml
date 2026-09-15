@@ -26,6 +26,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
     steps:
       - name: 检出本仓库
         uses: actions/checkout@v4
@@ -102,8 +105,7 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/output
           cp -f * $GITHUB_WORKSPACE/output/ 2>/dev/null || true
           cd $GITHUB_WORKSPACE
-          VERSION=$(grep '^CONFIG_VERSION_NUMBER' openwrt/.config | cut -d'"' -f2 || echo "snapshot")
-          echo "FANCHMWRT_VERSION=${VERSION}-$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          echo "FANCHMWRT_VERSION=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
 
       - name: 上传 Artifacts
         uses: actions/upload-artifact@v4
