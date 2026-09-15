@@ -1,0 +1,118 @@
+name: Build FanchmWrt
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "设备 profile（留空 = 京东云亚瑟 RE-SP-01B）"
+        required: false
+        default: "jdcloud_re-sp-01b"
+  push:
+    branches: [main]
+    paths:
+      - "configs/**"
+      - "files/**"
+      - ".github/workflows/build-fanchmwrt.yml"
+  release:
+    types: [published]
+
+env:
+  REPO_URL: https://github.com/openwrt/openwrt
+  REPO_BRANCH: openwrt-25.12
+  CONFIG_FILE: configs/fanchmwrt-ramips-mt7621.seed
+  FILES_DIR: files
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: 检出本仓库
+        uses: actions/checkout@v4
+
+      - name: 释放磁盘空间
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force > /dev/null 2>&1 || true
+          df -hT
+
+      - name: 安装编译依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libreadline-dev \
+            libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full \
+            patch pkgconf python3 python3-pip python3-ply python3-docutils python3-pyelftools qemu-utils re2c \
+            rsync scons squashfs-tools subversion swig texinfo uglifyjs unzip vim wget xmlto xxd zlib1g-dev zstd
+
+      - name: 克隆 OpenWrt 源码
+        run: |
+          git clone --depth 1 --branch $REPO_BRANCH $REPO_URL openwrt
+
+      - name: 更新并安装 feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 注入 FanchmWrt 配置与定制文件
+        run: |
+          cd openwrt
+          cp -f $GITHUB_WORKSPACE/$CONFIG_FILE .config
+          if [ -d "$GITHUB_WORKSPACE/$FILES_DIR" ]; then
+            cp -rf $GITHUB_WORKSPACE/$FILES_DIR/. files/ 2>/dev/null || {
+              mkdir -p files
+              cp -rf $GITHUB_WORKSPACE/$FILES_DIR/. files/
+            }
+          fi
+          make defconfig
+          ./scripts/diffconfig.sh > seed.conf
+          cat seed.conf
+
+      - name: 下载软件源码包
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 编译固件
+        id: compile
+        run: |
+          cd openwrt
+          echo -e "$(nproc) 线程编译中，预计 2~3 小时"
+          make -j$(nproc) || make -j1 V=s
+          echo "status=success" >> $GITHUB_OUTPUT
+          ls -lh bin/targets/ramips/mt7621/
+
+      - name: 整理产物
+        if: steps.compile.outputs.status == 'success'
+        run: |
+          cd openwrt/bin/targets/ramips/mt7621
+          rm -rf packages
+          mkdir -p $GITHUB_WORKSPACE/output
+          cp -f * $GITHUB_WORKSPACE/output/ 2>/dev/null || true
+          cd $GITHUB_WORKSPACE
+          VERSION=$(grep '^CONFIG_VERSION_NUMBER' openwrt/.config | cut -d'"' -f2 || echo "snapshot")
+          echo "FANCHMWRT_VERSION=$VERSION-$(date +%Y%m%d)" >> $GITHUB_ENV
+
+      - name: 上传 Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FanchmWrt-${{ env.FANCHMWRT_VERSION }}
+          path: output/
+          retention-days: 30
+
+      - name: 发布到 Release（tag 推送时）
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: output/*
+          body: |
+            FanchmWrt ${{ env.FANCHMWRT_VERSION }}
+            设备：京东云无线宝一代（亚瑟 RE-SP-01B，MT7621）
+            ⚠️ 刷机需第三方 bootloader（breed），详见 README
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
