@@ -96,3 +96,21 @@ CONFIG_PACKAGE_luci-i18n-fwx-wireless-zh-cn=y
 
 # 中文语言支持（LuCI 基础框架）
 CONFIG_LUCI_LANG_zh_Hans=y
+
+# ===== 文件管理器（官方 LuCI feed，网页浏览/上传/下载/编辑/权限/HEX）=====
+CONFIG_PACKAGE_luci-app-filemanager=y
+CONFIG_PACKAGE_luci-i18n-filemanager-zh-cn=y
+
+# ===== 应用管理：apk 软件包界面（装/卸插件的地方）=====
+CONFIG_PACKAGE_luci-app-package-manager=y
+CONFIG_PACKAGE_luci-i18n-package-manager-zh-cn=y
+
+# ===== 网页终端（配合文件管理器改配置方便）=====
+CONFIG_PACKAGE_luci-app-ttyd=y
+CONFIG_PACKAGE_luci-i18n-ttyd-zh-cn=y
+CONFIG_PACKAGE_ttyd=y
+
+# ===== 存储增强：eMMC / U 盘挂载与共享 =====
+CONFIG_PACKAGE_luci-app-samba4=y
+CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y
+CONFIG_PACKAGE_samba4-server=y
