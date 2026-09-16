@@ -17,8 +17,9 @@ on:
     types: [published]
 
 env:
-  REPO_URL: https://github.com/openwrt/openwrt
-  REPO_BRANCH: openwrt-25.12
+  # 官方 FanchmWrt 源码（OpenWrt 分叉，自带 fcm 内核组件 + fanchmwrt 专属 LuCI 主题）
+  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH: fanchmwrt-25.12.4
   CONFIG_FILE: configs/fanchmwrt-ramips-mt7621.seed
   FILES_DIR: files
   TZ: Asia/Shanghai

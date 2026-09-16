@@ -47,15 +47,52 @@ CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_kmod-mt7603=y
 CONFIG_PACKAGE_kmod-mt7615-firmware=y
 
-# 品牌信息（依赖链：IMAGEOPT -> VERSIONOPT -> VERSION_DIST，少一个整块失效）
-CONFIG_IMAGEOPT=y
-CONFIG_VERSIONOPT=y
-CONFIG_VERSION_DIST="FanchmWrt"
-CONFIG_VERSION_NICK="fanchm"
-CONFIG_VERSION_PRODUCT="FanchmWrt RE-SP-01B"
-CONFIG_VERSION_REPO="https://downloads.openwrt.org/releases/25.12.2"
-CONFIG_VERSION_BUG_URL="https://github.com/pcy0124m/FanchmWrt/issues"
+# 品牌信息：官方 FanchmWrt 源码自带（version 文件 + IMAGEOPT 默认配置），无需覆盖
 
-# 主题：Argon（由 workflow 从 jerrykuku 仓库拉取）及其配置页
-CONFIG_PACKAGE_luci-theme-argon=y
-CONFIG_PACKAGE_luci-app-argon-config=y
+# ===== FanchmWrt 核心组件（package/fcm）=====
+CONFIG_PACKAGE_luci-theme-fanchmwrt=y
+CONFIG_PACKAGE_fwx=y
+CONFIG_PACKAGE_fwxd=y
+CONFIG_PACKAGE_libfwx_common=y
+CONFIG_PACKAGE_fullconenat-nft=y
+
+# ===== FanchmWrt LuCI 应用（fanchmwrt feed）=====
+CONFIG_PACKAGE_luci-app-fwx-dashboard=y
+CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
+CONFIG_PACKAGE_luci-app-fwx-user=y
+CONFIG_PACKAGE_luci-app-fwx-user-record=y
+CONFIG_PACKAGE_luci-app-fwx-appfilter=y
+CONFIG_PACKAGE_luci-app-fwx-app-center=y
+CONFIG_PACKAGE_luci-app-fwx-feature=y
+CONFIG_PACKAGE_luci-app-fwx-macfilter=y
+CONFIG_PACKAGE_luci-app-fwx-mac-blacklist=y
+CONFIG_PACKAGE_luci-app-fwx-network=y
+CONFIG_PACKAGE_luci-app-fwx-record=y
+CONFIG_PACKAGE_luci-app-fwx-record-whitelist=y
+CONFIG_PACKAGE_luci-app-fwx-resources=y
+CONFIG_PACKAGE_luci-app-fwx-session-stat=y
+CONFIG_PACKAGE_luci-app-fwx-system=y
+CONFIG_PACKAGE_luci-app-fwx-traffic-stat=y
+CONFIG_PACKAGE_luci-app-fwx-wireless=y
+
+# ===== FanchmWrt 中文翻译（包名不存在时 defconfig 静默忽略，无害）=====
+CONFIG_PACKAGE_luci-i18n-fwx-dashboard-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-dashboard-setting-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-user-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-user-record-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-appfilter-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-app-center-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-feature-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-macfilter-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-mac-blacklist-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-network-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-record-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-record-whitelist-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-resources-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-session-stat-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-system-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-traffic-stat-zh-cn=y
+CONFIG_PACKAGE_luci-i18n-fwx-wireless-zh-cn=y
+
+# 中文语言支持（LuCI 基础框架）
+CONFIG_LUCI_LANG_zh_Hans=y

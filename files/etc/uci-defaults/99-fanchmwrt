@@ -27,8 +27,8 @@ uci commit network
 # root 空密码（刷机后直接登录，请自行设置密码）
 passwd -d root
 
-# 默认主题 Argon
-uci set luci.main.mediaurlbase='/luci-static/argon'
+# 默认主题：FanchmWrt 原版仪表盘界面
+uci set luci.main.mediaurlbase='/luci-static/fanchmwrt'
 uci commit luci
 
 exit 0

@@ -1,8 +1,13 @@
 # FanchmWrt
 
-定制版 OpenWrt 固件 · 京东云无线宝一代（亚瑟 **RE-SP-01B**，MT7621AT）
+官方 FanchmWrt 固件自编译 · 京东云无线宝一代（亚瑟 **RE-SP-01B**，MT7621AT）
 
-基于 OpenWrt `openwrt-25.12` 分支，GitHub Actions 云端编译，产物自动上传。
+基于官方 FanchmWrt 源码（`github.com/fanchmwrt/fanchmwrt`，分支 `fanchmwrt-25.12.4`）
+GitHub Actions 云端编译，产物自动发 Release。
+
+> 官方下载站（download.ttcoder.cn）暂未发布 RE-SP-01B 的固件（其「亚瑟」为二代 RE-SS-01），
+> 本仓库按官方源码为 RE-SP-01B 编译，界面与官方一致（仪表板 / 终端列表 / 行为管理 /
+> 上网审计 / 高级设置）。
 
 ## 仓库结构
 
