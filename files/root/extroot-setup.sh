@@ -90,8 +90,17 @@ read ANS
 [ "$ANS" = "YES" ] || err "已取消，未做任何改动"
 
 # ---------------- 4. 分区 ----------------
+# 先抹掉旧签名：ext4/GPT 残留会让 fdisk 交互式询问"是否移除签名"，
+# 吃掉脚本预置的应答导致分区错位（sda2 凭空消失就是这个原因）
+log "清除旧分区签名 ..."
+dd if=/dev/zero of="$DEV" bs=1M count=1 2>/dev/null
+dd if=/dev/zero of="$DEV" bs=1M count=1 seek=8192 2>/dev/null
+SIZE_KB=$(awk -v d="${DEV##*/}" '$4==d{print $3}' /proc/partitions 2>/dev/null)
+[ -n "$SIZE_KB" ] && dd if=/dev/zero of="$DEV" bs=1M count=1 seek=$((SIZE_KB/1024-1)) 2>/dev/null
+sync
+
 log "写入分区表并创建分区 ..."
-fdisk "$DEV" >/dev/null 2>&1 <<EOF
+fdisk "$DEV" <<EOF
 o
 n
 p
@@ -107,8 +116,8 @@ w
 EOF
 sync
 sleep 3
-[ -e "$P1" ] || err "分区 $P1 未生成，请检查磁盘状态（fdisk -l $DEV）"
-[ -e "$P2" ] || err "分区 $P2 未生成，请检查磁盘状态（fdisk -l $DEV）"
+[ -e "$P1" ] || err "分区 $P1 未生成，请拔插一次 USB 硬盘后重跑本脚本"
+[ -e "$P2" ] || err "分区 $P2 未生成，请拔插一次 USB 硬盘后重跑本脚本"
 
 # ---------------- 5. 格式化 ----------------
 log "格式化 $P1 为 ext4 (overlay) ..."
