@@ -26,10 +26,11 @@ err()  { printf '\033[31m[-]\033[0m %s\n' "$*"; exit 1; }
 # ---------------- 0. 前置检查 ----------------
 [ "$(id -u)" = "0" ] || err "必须用 root 运行"
 
-# 已经是 extroot 就别再跑
+# 已经做过 extroot（挂在外置盘上）就别再跑；mtdblock 是内置 flash，属正常
 OVL_DEV=$(awk '$2=="/overlay"{print $1}' /proc/mounts 2>/dev/null)
 case "$OVL_DEV" in
-  /dev/*) err "检测到 /overlay 已挂在 $OVL_DEV 上，无需重复执行" ;;
+  /dev/sd*|/dev/mmcblk*|/dev/nvme*|/dev/vd*|/dev/hd*) \
+    err "检测到 /overlay 已挂在外置盘 $OVL_DEV 上，无需重复执行" ;;
 esac
 
 for t in fdisk mkfs.ext4 block blkid tar uci; do
