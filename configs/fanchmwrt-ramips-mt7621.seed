@@ -15,16 +15,15 @@ CONFIG_PACKAGE_luci=y
 CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
 CONFIG_PACKAGE_luci-compat=y
 
-# 常用工具
-CONFIG_PACKAGE_htop=y
+# 常用工具（精简版：只留真正用得上的，控制固件体积）
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_nano=y
 CONFIG_PACKAGE_openssh-sftp-server=y
-CONFIG_PACKAGE_bash=y
-CONFIG_PACKAGE_coreutils-nohup=y
 
-# 存储支持（设备带 eMMC + USB2.0）
+# 存储支持（外接硬盘扩容量：block-mount 做 extroot，e2fsprogs 提供 mkfs.ext4，fdisk 分区）
 CONFIG_PACKAGE_block-mount=y
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_fdisk=y
 CONFIG_PACKAGE_kmod-fs-ext4=y
 CONFIG_PACKAGE_kmod-fs-exfat=y
 CONFIG_PACKAGE_kmod-fs-ntfs3=y
@@ -35,8 +34,6 @@ CONFIG_PACKAGE_kmod-usb-storage-uas=y
 CONFIG_PACKAGE_wg-tools=y
 CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_kmod-tun=y
-CONFIG_PACKAGE_iperf3=y
-CONFIG_PACKAGE_tcpdump=y
 
 # DDNS（远程访问常用）
 CONFIG_PACKAGE_ddns-scripts=y
@@ -105,12 +102,11 @@ CONFIG_PACKAGE_luci-i18n-filemanager-zh-cn=y
 CONFIG_PACKAGE_luci-app-package-manager=y
 CONFIG_PACKAGE_luci-i18n-package-manager-zh-cn=y
 
-# ===== 网页终端（配合文件管理器改配置方便）=====
-CONFIG_PACKAGE_luci-app-ttyd=y
-CONFIG_PACKAGE_luci-i18n-ttyd-zh-cn=y
-CONFIG_PACKAGE_ttyd=y
-
-# ===== 存储增强：eMMC / U 盘挂载与共享 =====
-CONFIG_PACKAGE_luci-app-samba4=y
-CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y
-CONFIG_PACKAGE_samba4-server=y
+# ===== 网页终端 / Samba：体积大，精简版已移除 =====
+# 需要的话把下面几行加回来（每次改动 push 后自动重编，约 70 分钟）
+# CONFIG_PACKAGE_ttyd=y
+# CONFIG_PACKAGE_luci-app-ttyd=y
+# CONFIG_PACKAGE_luci-i18n-ttyd-zh-cn=y
+# CONFIG_PACKAGE_samba4-server=y
+# CONFIG_PACKAGE_luci-app-samba4=y
+# CONFIG_PACKAGE_luci-i18n-samba4-zh-cn=y
