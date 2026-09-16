@@ -26,17 +26,27 @@ err()  { printf '\033[31m[-]\033[0m %s\n' "$*"; exit 1; }
 # ---------------- 0. 前置检查 ----------------
 [ "$(id -u)" = "0" ] || err "必须用 root 运行"
 
+# 缺工具时尝试 apk 补装（25.12 用 apk，不用 opkg）
+NEED=""
+for t in fdisk mkfs.ext4 block blkid tar uci; do
+  command -v "$t" >/dev/null 2>&1 || NEED="$NEED $t"
+done
+if [ -n "$NEED" ] && command -v apk >/dev/null 2>&1; then
+  warn "缺少:$NEED ，尝试 apk 补装 ..."
+  apk add --no-cache block-mount e2fsprogs fdisk blkid >/dev/null 2>&1
+fi
+
+for t in fdisk mkfs.ext4 block blkid tar uci; do
+  command -v "$t" >/dev/null 2>&1 || \
+    err "缺少命令: $t  —— apk 补装失败，请检查网络或换用完整版固件"
+done
+
 # 已经做过 extroot（挂在外置盘上）就别再跑；mtdblock 是内置 flash，属正常
 OVL_DEV=$(awk '$2=="/overlay"{print $1}' /proc/mounts 2>/dev/null)
 case "$OVL_DEV" in
   /dev/sd*|/dev/mmcblk*|/dev/nvme*|/dev/vd*|/dev/hd*) \
     err "检测到 /overlay 已挂在外置盘 $OVL_DEV 上，无需重复执行" ;;
 esac
-
-for t in fdisk mkfs.ext4 block blkid tar uci; do
-  command -v "$t" >/dev/null 2>&1 || \
-    err "缺少命令: $t  —— 该固件未内置 block-mount / e2fsprogs / fdisk，请换用完整版固件"
-done
 
 # ---------------- 1. 选磁盘 ----------------
 if [ -z "$DEV" ]; then
