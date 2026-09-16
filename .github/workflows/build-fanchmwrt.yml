@@ -82,6 +82,24 @@ jobs:
           ./scripts/diffconfig.sh > seed.conf
           cat seed.conf
 
+      - name: 校验关键包未被静默丢弃
+        run: |
+          cd openwrt
+          MISSING=0
+          for pkg in kmod-fwx fwxd libfwx_common luci-theme-fanchmwrt \
+                     luci-app-fwx-dashboard luci-app-fwx-appfilter luci-app-fwx-user \
+                     luci-app-filemanager luci-app-package-manager; do
+            if ! grep -q "^CONFIG_PACKAGE_${pkg}=y" .config; then
+              echo "::error::包 ${pkg} 被 defconfig 丢弃（依赖不满足或包名不存在）"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -ne 0 ]; then
+            echo "=== 当前 .config 中 fwx 相关项 ==="
+            grep -E "CONFIG_PACKAGE_(kmod-fwx|fwxd|luci-app-fwx|luci-theme-fanchmwrt)" .config || true
+            exit 1
+          fi
+
       - name: 下载软件源码包
         run: |
           cd openwrt
