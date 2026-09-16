@@ -47,9 +47,10 @@ CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_kmod-mt7603=y
 CONFIG_PACKAGE_kmod-mt7615-firmware=y
 
-# 品牌信息（必须先开 CONFIG_VERSIONOPT，否则下面全部不生效）
+# 品牌信息（依赖链：IMAGEOPT -> VERSIONOPT -> VERSION_DIST，少一个整块失效）
+CONFIG_IMAGEOPT=y
 CONFIG_VERSIONOPT=y
-CONFIG_VERSION_DIST="fanchmwrt"
+CONFIG_VERSION_DIST="FanchmWrt"
 CONFIG_VERSION_NICK="fanchm"
 CONFIG_VERSION_PRODUCT="FanchmWrt RE-SP-01B"
 CONFIG_VERSION_REPO="https://downloads.openwrt.org/releases/25.12.2"
