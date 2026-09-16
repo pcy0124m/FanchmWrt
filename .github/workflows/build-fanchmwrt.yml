@@ -56,11 +56,13 @@ jobs:
         run: |
           git clone --depth 1 --branch $REPO_BRANCH $REPO_URL openwrt
 
-      - name: 拉取 Argon 主题（第三方）
+      - name: 应用本地补丁（kmod-fwx Makefile 修补）
         run: |
-          cd openwrt
-          git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon package/luci-theme-argon
-          git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config package/luci-app-argon-config
+          # 官方源码 kmod-fwx 缺显式 Build/Prepare，25.12 下 src 不进构建目录，fwx.ko 静默不产出
+          if [ -f "$GITHUB_WORKSPACE/overlays/package/fcm/fwx/Makefile" ]; then
+            cp -f $GITHUB_WORKSPACE/overlays/package/fcm/fwx/Makefile openwrt/package/fcm/fwx/Makefile
+            echo "已应用 kmod-fwx Makefile 补丁"
+          fi
 
       - name: 更新并安装 feeds
         run: |
@@ -115,6 +117,24 @@ jobs:
           make -j$(nproc) || make -j1 V=s
           echo "status=success" >> $GITHUB_OUTPUT
           ls -lh bin/targets/ramips/mt7621/
+
+      - name: 校验 fwx 内核模块真实进入固件
+        if: steps.compile.outputs.status == 'success'
+        run: |
+          cd openwrt
+          KO=$(find build_dir -name 'fwx.ko' 2>/dev/null | head -n1)
+          echo "build_dir 里的 fwx.ko: ${KO:-（无）}"
+          if [ -z "$KO" ]; then
+            echo "::error::fwx.ko 没有编译产出"
+            exit 1
+          fi
+          ROOT=$(echo build_dir/target-*/root-*)
+          FOUND=$(find $ROOT -name 'fwx.ko' 2>/dev/null | head -n1)
+          echo "rootfs 里的 fwx.ko: ${FOUND:-（无）}"
+          if [ -z "$FOUND" ]; then
+            echo "::error::fwx.ko 没有安装进 rootfs（包未进镜像）"
+            exit 1
+          fi
 
       - name: 整理产物
         if: steps.compile.outputs.status == 'success'
