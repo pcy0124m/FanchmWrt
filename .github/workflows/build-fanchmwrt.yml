@@ -91,7 +91,7 @@ jobs:
           for pkg in kmod-fwx fwxd libfwx_common luci-theme-fanchmwrt \
                      luci-app-fwx-dashboard luci-app-fwx-appfilter luci-app-fwx-user \
                      luci-app-filemanager luci-app-package-manager \
-                     udpxy igmpproxy; do
+                     udpxy igmpproxy adblock; do
             if ! grep -q "^CONFIG_PACKAGE_${pkg}=y" .config; then
               echo "::error::包 ${pkg} 被 defconfig 丢弃（依赖不满足或包名不存在）"
               MISSING=1

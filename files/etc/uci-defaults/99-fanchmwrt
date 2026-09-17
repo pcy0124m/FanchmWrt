@@ -1,0 +1,38 @@
+#!/bin/sh
+# FanchmWrt 首次启动定制
+uci set system.@system[0].hostname='FanchmWrt'
+uci set system.@system[0].description='FanchmWrt on JDCloud RE-SP-01B'
+uci set system.@system[0].timezone='CST-8'
+uci set system.@system[0].zonename='Asia/Shanghai'
+uci commit system
+
+# 无线默认名（.factory 里的 country code 已内置，这里只改 SSID）
+[ -n "$(uci -q get wireless.default_radio0)" ] && {
+  uci set wireless.default_radio0.ssid='FanchmWrt-2.4G'
+  uci set wireless.default_radio0.encryption='psk2'
+  uci set wireless.default_radio0.key='fanchm12345'
+}
+[ -n "$(uci -q get wireless.default_radio1)" ] && {
+  uci set wireless.default_radio1.ssid='FanchmWrt-5G'
+  uci set wireless.default_radio1.encryption='psk2'
+  uci set wireless.default_radio1.key='fanchm12345'
+}
+uci commit wireless
+
+# 管理 IP
+uci set network.lan.ipaddr='192.168.12.1' 2>/dev/null
+uci set network.lan.netmask='255.255.255.0' 2>/dev/null
+uci commit network 2>/dev/null
+# 兜底：若 FanchmWrt 首次启动后又重写了 /etc/config/network（覆盖上面的 uci 设置），直接 sed 改文件
+if grep -q "192.168.1.1" /etc/config/network 2>/dev/null; then
+  sed -i "s/192.168.1.1/192.168.12.1/g" /etc/config/network
+fi
+
+# root 空密码（刷机后直接登录，请自行设置密码）
+passwd -d root
+
+# 默认主题：FanchmWrt 原版仪表盘界面
+uci set luci.main.mediaurlbase='/luci-static/fanchmwrt'
+uci commit luci
+
+exit 0
