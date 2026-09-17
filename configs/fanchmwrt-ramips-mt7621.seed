@@ -58,7 +58,10 @@ CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_kmod-mt7603=y
 CONFIG_PACKAGE_kmod-mt7615-firmware=y
 
-# 品牌信息：官方 FanchmWrt 源码自带（version 文件 + IMAGEOPT 默认配置），无需覆盖
+# 品牌信息：强制把固件文件名前缀从 openwrt 改成 fanchmwrt
+CONFIG_IMAGEOPT=y
+CONFIG_VERSIONOPT=y
+CONFIG_VERSION_DIST="FanchmWrt"
 
 # ===== FanchmWrt 核心组件（package/fcm）=====
 CONFIG_PACKAGE_luci-theme-fanchmwrt=y
